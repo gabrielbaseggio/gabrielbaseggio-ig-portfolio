@@ -336,4 +336,3 @@ export const t = {
   },
 } as const
 
-export type Translations = typeof t[Lang]

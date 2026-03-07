@@ -1,7 +1,9 @@
 "use client"
 
 import { createContext, useContext, useState, type ReactNode } from "react"
-import { t, type Lang, type Translations } from "@/lib/i18n"
+import { t, type Lang } from "@/lib/i18n"
+
+export type Translations = typeof t.en | typeof t.es
 
 interface LangContextValue {
   lang: Lang
@@ -15,7 +17,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>("en")
 
   return (
-    <LangContext.Provider value={{ lang, tr: t[lang], setLang }}>
+    <LangContext.Provider value={{ lang, tr: t[lang] as Translations, setLang }}>
       {children}
     </LangContext.Provider>
   )
