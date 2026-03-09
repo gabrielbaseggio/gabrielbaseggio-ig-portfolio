@@ -6,33 +6,50 @@ import {
   Cpu,
   GraduationCap,
   UserRound,
+  Code2,
+  Layers,
+  Star,
+  Zap,
+  BookOpen,
+  Globe,
+  Heart,
+  Camera,
   type LucideIcon,
 } from "lucide-react"
-import { highlights } from "@/data/portfolio"
+import { usePortfolioData } from "@/context/DataContext"
 import { useLang } from "@/context/LangContext"
 
-const iconMap: Record<string, LucideIcon> = {
-  work: Briefcase,
-  skills: Cpu,
-  education: GraduationCap,
-  about: UserRound,
+export const LUCIDE_ICONS: Record<string, LucideIcon> = {
+  Briefcase,
+  Cpu,
+  GraduationCap,
+  UserRound,
+  Code2,
+  Layers,
+  Star,
+  Zap,
+  BookOpen,
+  Globe,
+  Heart,
+  Camera,
 }
 
 export default function StoryHighlights() {
+  const { highlights } = usePortfolioData()
   const { tr } = useLang()
 
   const labelMap: Record<string, string> = {
-    work: tr.highlights.work,
-    skills: tr.highlights.skills,
+    work:      tr.highlights.work,
+    skills:    tr.highlights.skills,
     education: tr.highlights.education,
-    about: tr.highlights.about,
+    about:     tr.highlights.about,
   }
 
   return (
     <div className="px-4 py-4" style={{ borderTop: "1px solid var(--s7)" }}>
       <div className="flex gap-4 overflow-x-auto hide-scrollbar">
         {highlights.map((item) => {
-          const Icon = iconMap[item.id] ?? UserRound
+          const Icon = LUCIDE_ICONS[item.icon] ?? UserRound
           return (
             <Link
               key={item.id}
