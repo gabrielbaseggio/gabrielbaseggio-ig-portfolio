@@ -6,9 +6,15 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
+  try {
   const highlights = await request.json()
   const data = await readPortfolio()
   data.highlights = highlights
   await writePortfolio(data)
-  return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(`[admin/data/highlights] PUT failed:`, err)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }

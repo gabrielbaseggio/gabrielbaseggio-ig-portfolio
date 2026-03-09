@@ -7,10 +7,16 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
+  try {
   const { skills, skillCards } = await request.json()
   const data = await readPortfolio()
   data.skills = skills
   data.skillCards = skillCards
   await writePortfolio(data)
-  return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(`[admin/data/skills] PUT failed:`, err)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }

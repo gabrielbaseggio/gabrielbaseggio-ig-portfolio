@@ -6,7 +6,13 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  const translations = await request.json()
-  await writeTranslations(translations)
-  return NextResponse.json({ ok: true })
+  try {
+    const translations = await request.json()
+    await writeTranslations(translations)
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error("[admin/data/translations] PUT failed:", err)
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }

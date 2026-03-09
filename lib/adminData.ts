@@ -42,11 +42,16 @@ export async function readPortfolio(): Promise<PortfolioData> {
 }
 
 export async function writePortfolio(data: PortfolioData): Promise<void> {
-  if (useKV) {
-    const redis = await getRedis()
-    await redis.set("portfolio", data)
-  } else {
-    fs.writeFileSync(PORTFOLIO_PATH, JSON.stringify(data, null, 2), "utf-8")
+  try {
+    if (useKV) {
+      const redis = await getRedis()
+      await redis.set("portfolio", data)
+    } else {
+      fs.writeFileSync(PORTFOLIO_PATH, JSON.stringify(data, null, 2), "utf-8")
+    }
+  } catch (err) {
+    console.error("[adminData] writePortfolio failed:", err)
+    throw err
   }
   revalidateAll()
 }
@@ -61,11 +66,16 @@ export async function readTranslations(): Promise<TranslationsData> {
 }
 
 export async function writeTranslations(data: TranslationsData): Promise<void> {
-  if (useKV) {
-    const redis = await getRedis()
-    await redis.set("translations", data)
-  } else {
-    fs.writeFileSync(TRANSLATIONS_PATH, JSON.stringify(data, null, 2), "utf-8")
+  try {
+    if (useKV) {
+      const redis = await getRedis()
+      await redis.set("translations", data)
+    } else {
+      fs.writeFileSync(TRANSLATIONS_PATH, JSON.stringify(data, null, 2), "utf-8")
+    }
+  } catch (err) {
+    console.error("[adminData] writeTranslations failed:", err)
+    throw err
   }
   revalidateAll()
 }
