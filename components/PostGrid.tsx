@@ -10,8 +10,9 @@ import {
   ChevronUp,
   type LucideIcon,
 } from "lucide-react"
-import { posts, skillCards, type Post, type PostType, type SkillCategory } from "@/data/portfolio"
+import type { Post, PostType, SkillCategory } from "@/lib/types"
 import { techIconMap } from "@/lib/techIcons"
+import { usePortfolioData } from "@/context/DataContext"
 import { useLang } from "@/context/LangContext"
 
 const COLLAPSE_THRESHOLD = 3
@@ -29,7 +30,7 @@ const categories: Category[] = [
   { type: "education", labelKey: "education", icon: GraduationCap,  href: "/education" },
 ]
 
-const skillSubCategories: { key: SkillCategory; labelKey: keyof typeof import("@/lib/i18n").t.en.postGrid.skillSections }[] = [
+const skillSubCategories: { key: SkillCategory; labelKey: "languages" | "frontend" | "backend" | "tools" }[] = [
   { key: "languages", labelKey: "languages" },
   { key: "frontend",  labelKey: "frontend"  },
   { key: "backend",   labelKey: "backend"   },
@@ -80,8 +81,20 @@ function PostCard({
 }
 
 // ── Skill card with brand icon ───────────────────────────────────────────────
-function SkillCard({ name, displayName }: { name: string; displayName?: string }) {
-  const icon = techIconMap[name]
+function SkillCard({
+  name,
+  displayName,
+  iconPath,
+  iconColor,
+}: {
+  name: string
+  displayName?: string
+  iconPath?: string
+  iconColor?: string
+}) {
+  const icon = iconPath
+    ? { type: "si" as const, path: iconPath, color: iconColor ?? "#888888" }
+    : techIconMap[name]
   const label = displayName ?? name
 
   return (
@@ -119,6 +132,7 @@ function SkillCard({ name, displayName }: { name: string; displayName?: string }
 
 // ── Skills section ────────────────────────────────────────────────────────────
 function SkillsContent() {
+  const { skillCards } = usePortfolioData()
   const { tr } = useLang()
   const [activeKey, setActiveKey] = useState<SkillCategory | null>("languages")
 
@@ -163,7 +177,7 @@ function SkillsContent() {
                 style={{ gap: "1px", backgroundColor: "var(--s7)" }}
               >
                 {cards.map((skill) => (
-                  <SkillCard key={skill.id} name={skill.name} displayName={skill.displayName} />
+                  <SkillCard key={skill.id} name={skill.name} displayName={skill.displayName} iconPath={skill.iconPath} iconColor={skill.iconColor} />
                 ))}
               </div>
             )}
@@ -176,6 +190,7 @@ function SkillsContent() {
 
 // ── Generic category section ──────────────────────────────────────────────────
 function CategorySection({ type, labelKey, icon: Icon, href }: Category) {
+  const { posts } = usePortfolioData()
   const { tr } = useLang()
   const categoryPosts = posts.filter((p) => p.type === type)
   const isSkills = type === "skills"
@@ -216,7 +231,7 @@ function CategorySection({ type, labelKey, icon: Icon, href }: Category) {
               </>
             ) : (
               <>
-                <span>{tr.postGrid.showMore(hiddenCount)}</span>
+                <span>{`+${hiddenCount}`}</span>
                 <ChevronDown size={12} strokeWidth={2} />
               </>
             )}
@@ -232,14 +247,14 @@ function CategorySection({ type, labelKey, icon: Icon, href }: Category) {
           style={{ gap: "1px", backgroundColor: "var(--s7)" }}
         >
           {visiblePosts.map((post) => {
-            const postTr = tr.posts[post.id as keyof typeof tr.posts] as { title?: string; subtitle: string; detail?: string } | undefined
+            const postTr = tr.posts[post.id] as { title?: string; subtitle: string; detail?: string } | undefined
             return (
               <PostCard
                 key={post.id}
                 post={{ ...post, title: postTr?.title ?? post.title }}
                 categoryIcon={Icon}
                 subtitle={postTr?.subtitle ?? post.subtitle}
-                detail={"detail" in (postTr ?? {}) ? (postTr as { subtitle: string; detail?: string }).detail : post.detail}
+                detail={postTr?.detail ?? post.detail}
               />
             )
           })}
