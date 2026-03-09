@@ -2,10 +2,11 @@
 
 import { Mail, Github, MapPin } from "lucide-react"
 import StatBadge from "@/components/ui/StatBadge"
-import { profile } from "@/data/portfolio"
+import { usePortfolioData } from "@/context/DataContext"
 import { useLang } from "@/context/LangContext"
 
 export default function ProfileHeader() {
+  const { profile } = usePortfolioData()
   const { tr } = useLang()
 
   return (
