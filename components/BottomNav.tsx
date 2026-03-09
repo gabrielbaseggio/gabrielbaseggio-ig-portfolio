@@ -9,6 +9,8 @@ export default function BottomNav() {
   const pathname = usePathname()
   const { tr } = useLang()
 
+  if (pathname.startsWith("/admin")) return null
+
   const navItems = [
     { icon: Home,     href: "/",          label: "Home"                  },
     { icon: Search,   href: "/work",       label: tr.nav.work             },
