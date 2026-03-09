@@ -8,7 +8,7 @@ const TRANSLATIONS_PATH = path.join(process.cwd(), "data/json/translations.json"
 
 // Use KV when the Vercel KV env vars are present (production),
 // fall back to local JSON files in development.
-const useKV = Boolean(process.env.KV_REST_API_URL)
+const useKV = Boolean(process.env.UPSTASH_REDIS_REST_URL)
 
 function readFilePortfolio(): PortfolioData {
   return JSON.parse(fs.readFileSync(PORTFOLIO_PATH, "utf-8")) as PortfolioData
@@ -24,11 +24,18 @@ function revalidateAll() {
   }
 }
 
+async function getRedis() {
+  const { Redis } = await import("@upstash/redis")
+  return new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL!,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  })
+}
+
 export async function readPortfolio(): Promise<PortfolioData> {
   if (useKV) {
-    const { kv } = await import("@vercel/kv")
-    const data = await kv.get<PortfolioData>("portfolio")
-    // First request: KV is empty — seed from the bundled JSON
+    const redis = await getRedis()
+    const data = await redis.get<PortfolioData>("portfolio")
     return data ?? readFilePortfolio()
   }
   return readFilePortfolio()
@@ -36,8 +43,8 @@ export async function readPortfolio(): Promise<PortfolioData> {
 
 export async function writePortfolio(data: PortfolioData): Promise<void> {
   if (useKV) {
-    const { kv } = await import("@vercel/kv")
-    await kv.set("portfolio", data)
+    const redis = await getRedis()
+    await redis.set("portfolio", data)
   } else {
     fs.writeFileSync(PORTFOLIO_PATH, JSON.stringify(data, null, 2), "utf-8")
   }
@@ -46,8 +53,8 @@ export async function writePortfolio(data: PortfolioData): Promise<void> {
 
 export async function readTranslations(): Promise<TranslationsData> {
   if (useKV) {
-    const { kv } = await import("@vercel/kv")
-    const data = await kv.get<TranslationsData>("translations")
+    const redis = await getRedis()
+    const data = await redis.get<TranslationsData>("translations")
     return data ?? readFileTranslations()
   }
   return readFileTranslations()
@@ -55,8 +62,8 @@ export async function readTranslations(): Promise<TranslationsData> {
 
 export async function writeTranslations(data: TranslationsData): Promise<void> {
   if (useKV) {
-    const { kv } = await import("@vercel/kv")
-    await kv.set("translations", data)
+    const redis = await getRedis()
+    await redis.set("translations", data)
   } else {
     fs.writeFileSync(TRANSLATIONS_PATH, JSON.stringify(data, null, 2), "utf-8")
   }
