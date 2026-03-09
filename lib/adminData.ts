@@ -8,7 +8,7 @@ const TRANSLATIONS_PATH = path.join(process.cwd(), "data/json/translations.json"
 
 // Use KV when the Vercel KV env vars are present (production),
 // fall back to local JSON files in development.
-const useKV = Boolean(process.env.UPSTASH_REDIS_REST_URL)
+const useKV = Boolean(process.env.KV_REST_API_URL)
 
 function readFilePortfolio(): PortfolioData {
   return JSON.parse(fs.readFileSync(PORTFOLIO_PATH, "utf-8")) as PortfolioData
@@ -27,8 +27,8 @@ function revalidateAll() {
 async function getRedis() {
   const { Redis } = await import("@upstash/redis")
   return new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL!,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    url: process.env.KV_REST_API_URL!,
+    token: process.env.KV_REST_API_TOKEN!,
   })
 }
 
