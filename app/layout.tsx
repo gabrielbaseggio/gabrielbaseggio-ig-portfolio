@@ -20,6 +20,11 @@ export const metadata: Metadata = {
     description: "Full Stack Developer · CS @ UNRC · Building scalable products that matter.",
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Axel Baseggio — Full Stack Developer",
+    description: "Full Stack Developer · CS @ UNRC · Building scalable products that matter.",
+  },
 }
 
 export default async function RootLayout({
