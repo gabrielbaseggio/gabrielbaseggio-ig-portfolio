@@ -9,6 +9,7 @@ export interface Profile {
   location: string
   email: string
   github: string
+  avatar?: string
   stats: {
     projects: number
     technologies: string

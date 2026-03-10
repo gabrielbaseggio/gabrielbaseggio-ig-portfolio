@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Mail, Github, MapPin } from "lucide-react"
 import StatBadge from "@/components/ui/StatBadge"
 import { usePortfolioData } from "@/context/DataContext"
@@ -8,9 +9,26 @@ import { useLang } from "@/context/LangContext"
 export default function ProfileHeader() {
   const { profile } = usePortfolioData()
   const { tr } = useLang()
+  const [modalOpen, setModalOpen] = useState(false)
 
   return (
     <div className="px-4 py-5">
+      {/* Avatar preview modal */}
+      {modalOpen && profile.avatar && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.85)" }}
+          onClick={() => setModalOpen(false)}
+        >
+          <img
+            src={profile.avatar}
+            alt={profile.name}
+            className="rounded-full object-cover"
+            style={{ width: 280, height: 280 }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
       {/* Avatar + Stats Row */}
       <div className="flex items-center gap-6 mb-4">
         {/* Gold gradient ring */}
@@ -22,16 +40,25 @@ export default function ProfileHeader() {
           }}
         >
           <div className="rounded-full p-[2px]" style={{ backgroundColor: "var(--s1)" }}>
-            <div
-              className="w-20 h-20 rounded-full flex items-center justify-center"
-              style={{
-                background: "linear-gradient(135deg, var(--s5) 0%, var(--s9) 100%)",
-              }}
-            >
-              <span className="text-white text-2xl font-bold select-none tracking-tight">
-                AB
-              </span>
-            </div>
+            {profile.avatar ? (
+              <img
+                src={profile.avatar}
+                alt={profile.name}
+                className="w-20 h-20 rounded-full object-cover cursor-pointer"
+                onClick={() => setModalOpen(true)}
+              />
+            ) : (
+              <div
+                className="w-20 h-20 rounded-full flex items-center justify-center"
+                style={{
+                  background: "linear-gradient(135deg, var(--s5) 0%, var(--s9) 100%)",
+                }}
+              >
+                <span className="text-white text-2xl font-bold select-none tracking-tight">
+                  AB
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

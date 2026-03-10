@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import type { Profile } from "@/lib/types"
 
 function Field({
@@ -31,6 +31,26 @@ function Field({
 export default function ProfileForm({ initialData }: { initialData: Profile }) {
   const [data, setData] = useState(initialData)
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle")
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const img = new window.Image()
+    img.src = URL.createObjectURL(file)
+    img.onload = () => {
+      const MAX = 400
+      const ratio = Math.min(MAX / img.width, MAX / img.height, 1)
+      const canvas = document.createElement("canvas")
+      canvas.width = img.width * ratio
+      canvas.height = img.height * ratio
+      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height)
+      setData((prev) => ({ ...prev, avatar: canvas.toDataURL("image/jpeg", 0.85) }))
+      URL.revokeObjectURL(img.src)
+      // reset so the same file can be re-selected
+      e.target.value = ""
+    }
+  }
 
   function setField(field: keyof Omit<Profile, "stats">, value: string) {
     setData((prev) => ({ ...prev, [field]: value }))
@@ -71,6 +91,68 @@ export default function ProfileForm({ initialData }: { initialData: Profile }) {
         >
           {statusLabel}
         </button>
+      </div>
+
+      {/* Avatar upload */}
+      <div className="mb-6">
+        <p className="text-xs text-neutral-500 mb-3 uppercase tracking-widest">Profile Picture</p>
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="group relative rounded-full p-[2px] shrink-0 focus:outline-none"
+            style={{
+              background: "linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)",
+            }}
+          >
+            <div className="rounded-full p-[2px]" style={{ backgroundColor: "var(--s1)" }}>
+              {data.avatar ? (
+                <img
+                  src={data.avatar}
+                  alt="Avatar preview"
+                  className="w-20 h-20 rounded-full object-cover"
+                />
+              ) : (
+                <div
+                  className="w-20 h-20 rounded-full flex items-center justify-center"
+                  style={{ background: "linear-gradient(135deg, var(--s5) 0%, var(--s9) 100%)" }}
+                >
+                  <span className="text-white text-2xl font-bold select-none tracking-tight">AB</span>
+                </div>
+              )}
+            </div>
+            <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-white text-xs font-semibold">Change</span>
+            </div>
+          </button>
+          <div className="space-y-1.5">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="block text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+              style={{ backgroundColor: "var(--s3)", color: "var(--white)" }}
+            >
+              Upload photo
+            </button>
+            {data.avatar && (
+              <button
+                type="button"
+                onClick={() => setData((prev) => ({ ...prev, avatar: "" }))}
+                className="block text-xs text-neutral-500 hover:text-red-400 transition-colors"
+              >
+                Remove
+              </button>
+            )}
+            <p className="text-xs text-neutral-600">JPG, PNG, WEBP — resized to 400×400</p>
+          </div>
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleAvatarChange}
+        />
       </div>
 
       <div className="space-y-4 max-w-2xl">
